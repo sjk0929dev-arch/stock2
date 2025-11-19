@@ -33,4 +33,27 @@ def get_stock_info(keyword):
     soup2 = BeautifulSoup(r2.text, "lxml")
 
     # 현재가
-    to
+    today_tag = soup2.select_one("p.no_today span.blind")
+    today = today_tag.text.strip() if today_tag else "N/A"
+
+    # PER
+    per_tag = soup2.select_one("table tbody tr td span.blind")
+    per = per_tag.text.strip() if per_tag else "N/A"
+
+    return {
+        "name": keyword,
+        "code": code,
+        "price": today,
+        "per": per,
+        "link": info_url,
+    }
+
+# -------------------------------
+# 3) Streamlit API 엔드포인트
+# -------------------------------
+keyword = st.query_params.get("q", "").strip()  # URL 파라미터 가져오기 + 공백 제거
+
+if keyword:
+    st.json(get_stock_info(keyword))
+else:
+    st.write("URL 뒤에 ?q=검색어 형태로 호출하세요. 예: ?q=삼성전자")
